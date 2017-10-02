@@ -17,4 +17,7 @@ interface ParticipantDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products: MutableList<Participant>) : Unit
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addParticipant(participant: Participant) : Unit
+
 }
