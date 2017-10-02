@@ -25,7 +25,7 @@ class HomeActivity : AppCompatActivity() {
         btnLeader.setOnClickListener({})
     }
 
-    //TODO
+    //TODO remove in release: example for adding Participant
     fun addParticipant(participant: Participant){
         val participant = Participant(1,"shaul","/1.png",Pair<Float?,Float?>(1f,2f),100f)
         ParticipantsLocalDataSource.addParticipant(participant)
