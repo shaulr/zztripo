@@ -7,4 +7,9 @@
         <dimen name="button_font_size">28sp</dimen>
         <dimen name="btn_corners_radius">5dp</dimen>
         <dimen name="btn_stroke_width">1dp</dimen>
+    <dimen name="row_item_image_size">80dp</dimen>
+
+    <dimen name="small_margin">2dp</dimen>
+    <dimen name="medium_margin">5dp</dimen>
+    <dimen name="large_margin">7dp</dimen>
 </resources>

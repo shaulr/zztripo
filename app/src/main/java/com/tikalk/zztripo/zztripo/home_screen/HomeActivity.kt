@@ -8,19 +8,21 @@ import kotlinx.android.synthetic.main.activity_home.*
 import android.widget.Toast
 import android.Manifest.permission
 import android.content.Context
+import android.content.Intent
 import android.support.v4.app.FragmentActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
 import java.util.*
 import java.util.Arrays.deepToString
 import android.content.pm.PackageManager
 import android.util.Log
+import com.tikalk.zztripo.zztripo.members_screen.MembersActivity
 
 
 class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
 
     val TAG = "HomeActivity"
 
-    var homePresenter = HomePresenter(this, this)
+    private lateinit var homePresenter: HomeScreenContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +38,20 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
             homePresenter.leaderButtonClicked()
         })
 
-
+        setPresenter(HomePresenter(this, this))
     }
 
 
     override fun setPresenter(presenter: HomeScreenContract.Presenter) {
+        homePresenter = presenter
     }
 
     override fun openMembersActivity() {
         Log.i(TAG, "About to open Members Activity")
+        val intent = Intent(this, MembersActivity::class.java)
+
+        startActivity(intent)
+
     }
 
     override fun openWaitingActivity() {
