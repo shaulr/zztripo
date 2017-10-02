@@ -1,18 +1,22 @@
 package com.tikalk.zztripo.zztripo.members_screen
 
+import android.arch.lifecycle.LifecycleActivity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import com.tikalk.zztripo.zztripo.R
+import com.tikalk.zztripo.zztripo.flow.repos.ParticipantsViewModel
 import com.tikalk.zztripo.zztripo.model.Member
 import kotlinx.android.synthetic.main.activity_members.*
 
-class MembersActivity : AppCompatActivity(), MembersScreenContract.View {
+class MembersActivity : LifecycleActivity(), MembersScreenContract.View {
 
 
     val TAG = "MembersActivity"
     lateinit var membersPresenter : MembersScreenContract.Presenter
+
+    val viewModelClass = ParticipantsViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +38,7 @@ class MembersActivity : AppCompatActivity(), MembersScreenContract.View {
         super.onResume()
         membersPresenter.loadMembers()
     }
+
     override fun setPresenter(presenter: MembersScreenContract.Presenter) {
         this.membersPresenter = presenter
     }

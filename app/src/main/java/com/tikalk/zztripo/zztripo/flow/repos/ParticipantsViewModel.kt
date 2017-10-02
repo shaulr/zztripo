@@ -10,4 +10,5 @@ open class ParticipantsViewModel(application: Application?) : AndroidViewModel(a
 
     private val participantsLiveData: MutableLiveData<Participant> = MutableLiveData<Participant>()
 
+    fun getParticipants():MutableLiveData<Participant> =  participantsLiveData;
 }
