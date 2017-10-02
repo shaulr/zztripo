@@ -17,7 +17,7 @@ import com.tikalk.zztripo.zztripo.R
 import java.util.HashMap
 
 
-class MapManager(internal var mMap: GoogleMap) {
+class MapManager(internal var mMap: GoogleMap?) {
 
     companion object {
 
@@ -47,16 +47,16 @@ class MapManager(internal var mMap: GoogleMap) {
     }
 
     fun initMap() {
-        mMap.isBuildingsEnabled = true
-        mMap.uiSettings.isZoomControlsEnabled = true
+        mMap?.isBuildingsEnabled = true
+        mMap?.uiSettings?.isZoomControlsEnabled = true
 
-        mMap.setOnCameraIdleListener {
+        mMap?.setOnCameraIdleListener {
             //This means that camera moved and now it's idle again..
             //                Log.i(TAG, "onCameraIdle: ");
-            if (mMap.cameraPosition.zoom != mMapZoom) {
+            if (mMap?.cameraPosition?.zoom != mMapZoom) {
                 //This means user changed the zoom manually by zoom controls or gesture, setting zoom to new zoom value
                 Log.i(TAG, "onCameraMove: zoom changed")
-                mMapZoom = mMap.cameraPosition.zoom
+                mMapZoom = mMap?.cameraPosition!!.zoom
                 updateZoom(mMapZoom)
             }
         }
@@ -64,21 +64,22 @@ class MapManager(internal var mMap: GoogleMap) {
 
     fun updateZoom(zoom: Float) {
         mMapZoom = zoom
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoom))
+        mMap?.animateCamera(CameraUpdateFactory.zoomTo(mMapZoom))
         //    mMap.setMaxZoomPreference(zoom);
     }
 
-    fun updateMapLocation(location: Location) {
+    fun updateMapLocation(location: Location
+    ) {
 
         mHandler.post {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), mMapZoom))
+            mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), mMapZoom))
 
             val position = LatLng(location.latitude, location.longitude)
-            bearing = if (location.hasBearing()) location.bearing else mMap.cameraPosition.bearing
+            bearing = if (location.hasBearing()) location.bearing else mMap?.cameraPosition!!.bearing
 
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(position, mMapZoom, 0f, bearing)))
+            mMap?.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(position, mMapZoom, 0f, bearing)))
             if (mNavMarker == null) {
-                mNavMarker = mMap.addMarker(MarkerOptions().position(position).title("You're Here"))
+                mNavMarker = mMap?.addMarker(MarkerOptions().position(position).title("You're Here"))
             } else {
                 mNavMarker!!.setPosition(position)
                 //                    mNavMarker.setRotation(bearing);
@@ -87,8 +88,8 @@ class MapManager(internal var mMap: GoogleMap) {
         }
     }
 
-    fun addNewMarker(position: LatLng): Marker {
-        return mMap.addMarker(MarkerOptions().position(position))
+    fun addNewMarker(position: LatLng): Marker? {
+        return mMap?.addMarker(MarkerOptions().position(position))
     }
 
 

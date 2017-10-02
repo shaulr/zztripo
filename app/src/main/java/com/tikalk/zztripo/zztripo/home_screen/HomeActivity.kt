@@ -15,6 +15,7 @@ import java.util.*
 import java.util.Arrays.deepToString
 import android.content.pm.PackageManager
 import android.util.Log
+import com.tikalk.zztripo.zztripo.map.MapsActivity
 import com.tikalk.zztripo.zztripo.members_screen.MembersActivity
 
 
@@ -56,6 +57,8 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
 
     override fun openWaitingActivity() {
         Log.i(TAG, "About to open Waiting Activity")
+        val intent = Intent(this, MapsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun checkPermissions() {

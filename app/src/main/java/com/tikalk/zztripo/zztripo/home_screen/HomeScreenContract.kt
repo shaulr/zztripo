@@ -5,9 +5,6 @@ import com.tikalk.zztripo.zztripo.BaseView
 
 
 
-/**
- * Created by motibartov on 02/10/2017.
- */
 
 interface HomeScreenContract {
 
