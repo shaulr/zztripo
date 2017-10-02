@@ -51,7 +51,7 @@
         </activity>
         <activity android:name=".members_screen.MembersActivity" />
         <activity
-            android:name=".members_screen.GoingTripActivity"
+            android:name=".members_screen.OngoingTripActivity"
             android:label="@string/title_activity_going_trip"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>

@@ -20,7 +20,7 @@ import com.tikalk.zztripo.zztripo.map.MapViewFragment
 import kotlinx.android.synthetic.main.activity_going_trip.*
 import kotlinx.android.synthetic.main.fragment_going_trip.view.*
 
-class GoingTripActivity : AppCompatActivity() {
+class OngoingTripActivity : AppCompatActivity() {
 
     /**
      * The [android.support.v4.view.PagerAdapter] that will provide
@@ -79,6 +79,9 @@ class GoingTripActivity : AppCompatActivity() {
 
         override fun getItem(position: Int): Fragment {
             if(position == 0){
+                return ParticipantsFragment()
+            }
+            if(position == 1){
                 return MapViewFragment()
             }
             // getItem is called to instantiate the fragment for the given page.
