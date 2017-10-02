@@ -1,5 +1,6 @@
-package com.tikalk.zztripo.zztripo
+package com.tikalk.zztripo.zztripo.map
 
+import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -8,11 +9,16 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.tikalk.sensorsui.sensors.map.MapManager
+import com.tikalk.zztripo.zztripo.R
 
 
-class MapsActivity : FragmentActivity(), OnMapReadyCallback {
+class MapsActivity : FragmentActivity(), OnMapReadyCallback, MapScreenContract.View{
+
 
     private var mMap: GoogleMap? = null
+    lateinit var mapScreenPresenter : MapScreenContract.Presenter
+    lateinit var mapManager : MapManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,8 +27,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        setPresenter(MapScreenPresenter(this, this))
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
 
     /**
      * Manipulates the map once available.
@@ -38,7 +48,18 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)
-        mMap!!.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap!!.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mMap?.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+        mMap?.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mapManager = MapManager(mMap)
+        mapScreenPresenter.findLastKnownLocation()
+    }
+
+    override fun setPresenter(presenter: MapScreenContract.Presenter) {
+        mapScreenPresenter = presenter
+    }
+
+    override fun updateMapLocation(location: Location) {
+
+        mapManager.updateMapLocation(location)
     }
 }
