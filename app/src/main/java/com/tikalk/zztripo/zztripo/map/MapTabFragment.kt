@@ -1,5 +1,6 @@
 package com.tikalk.zztripo.zztripo.map
 
+import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -34,6 +35,7 @@ class MapViewFragment : Fragment() , MapScreenContract.View{
 
     }
 
+    @SuppressLint("MissingPermission")
     private fun initializeMapView(activity: Activity, savedInstanceState: Bundle?) {
         MapsInitializer.initialize(activity)
 
