@@ -10,17 +10,14 @@ import com.tikalk.zztripo.zztripo.sources.db.dao.ParticipantDao
 import com.tikalk.zztripo.zztripo.sources.participant.ParticipantsLocalDataSource
 import kotlinx.android.synthetic.main.activity_home.*
 import android.widget.Toast
-import android.Manifest.permission
 import android.content.Context
 import android.content.Intent
-import android.support.v4.app.FragmentActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
 import java.util.*
-import java.util.Arrays.deepToString
 import android.content.pm.PackageManager
 import android.util.Log
 import com.tikalk.zztripo.zztripo.map.MapsActivity
-import com.tikalk.zztripo.zztripo.members_screen.MembersActivity
+import com.tikalk.zztripo.zztripo.participants.OngoingTripActivity
 
 
 class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
@@ -54,7 +51,7 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
 
     override fun openMembersActivity() {
         Log.i(TAG, "About to open Members Activity")
-        val intent = Intent(this, MembersActivity::class.java)
+        val intent = Intent(this, OngoingTripActivity::class.java)
 
         startActivity(intent)
 

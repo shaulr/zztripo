@@ -1,10 +1,10 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import com.tikalk.zztripo.zztripo.BasePresenter
 import com.tikalk.zztripo.zztripo.BaseView
 import com.tikalk.zztripo.zztripo.model.Member
 
-interface MembersScreenContract {
+interface ParticipantsContract {
 
     interface View : BaseView<Presenter> {
         fun openGoingTripScreen()
