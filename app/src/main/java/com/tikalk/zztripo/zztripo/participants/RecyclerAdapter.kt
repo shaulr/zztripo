@@ -1,4 +1,4 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView

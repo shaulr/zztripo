@@ -1,4 +1,4 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import android.content.Context
 import com.google.android.gms.maps.model.LatLng

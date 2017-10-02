@@ -1,4 +1,4 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import android.os.Bundle
 import android.support.v4.app.Fragment

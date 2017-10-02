@@ -1,4 +1,4 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import com.tikalk.zztripo.zztripo.BasePresenter
 import com.tikalk.zztripo.zztripo.BaseView

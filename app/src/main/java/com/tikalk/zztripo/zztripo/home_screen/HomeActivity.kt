@@ -13,7 +13,7 @@ import java.util.*
 import android.content.pm.PackageManager
 import android.util.Log
 import com.tikalk.zztripo.zztripo.map.MapsActivity
-import com.tikalk.zztripo.zztripo.members_screen.OngoingTripActivity
+import com.tikalk.zztripo.zztripo.participants.OngoingTripActivity
 
 
 class HomeActivity : AppCompatActivity(), HomeScreenContract.View {

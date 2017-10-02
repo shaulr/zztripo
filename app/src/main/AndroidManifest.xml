@@ -49,9 +49,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".members_screen.MembersActivity" />
+        <activity android:name=".participants.MembersActivity" />
         <activity
-            android:name=".members_screen.OngoingTripActivity"
+            android:name=".participants.OngoingTripActivity"
             android:label="@string/title_activity_going_trip"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
