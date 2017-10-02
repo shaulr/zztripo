@@ -23,7 +23,9 @@ class BLEManagerTest {
     @Rule
     @JvmField
     val  mRuntimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH,
-                                                                                 android.Manifest.permission.BLUETOOTH_ADMIN)
+                                                                                 android.Manifest.permission.BLUETOOTH_ADMIN,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION)
+
 
 
     @Before
@@ -38,7 +40,9 @@ class BLEManagerTest {
         assert(manager.isBluetoothEnabled())
         val latch = CountDownLatch(1)
         var success = false
-        manager.startScan(5000, object: IScanCallback {
+//        manager.startAdvertising()
+//        manager.startServer()
+        manager.startScan(15000, object: IScanCallback {
             override fun onDone() {
                 latch.countDown()
                 success = true
@@ -52,5 +56,7 @@ class BLEManagerTest {
         latch.await()
         assert(success)
     }
+
+
 
 }

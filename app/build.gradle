@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 apply plugin: 'kotlin-android-extensions'
 
@@ -21,6 +22,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -46,7 +51,6 @@ dependencies {
     //compile 'com.google.code.gson:gson:2.7'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     testImplementation 'junit:junit:4.12'
     implementation 'com.google.code.gson:gson:2.8.2'

@@ -19,6 +19,10 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothGattServerCallback
 import com.tikalk.zztripo.zztripo.logics.MessageProvider
+import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.ScanFilter
+import java.io.UnsupportedEncodingException
+import java.net.URLEncoder
 
 
 /**
@@ -36,6 +40,8 @@ class BLEManager {
     val devices = ArrayList<BluetoothDevice>()
     private var bluetoothDeviceAddress: String? = null
     private val registeredDevices = HashSet<BluetoothDevice>()
+     var bluetoothCharacteristic: BluetoothGattCharacteristic? = null
+    lateinit var bleCallback : IBleCallback
 
     companion object {
 
@@ -60,7 +66,7 @@ class BLEManager {
 
     }
 
-    fun init(context: Context): Boolean {
+    fun init(context: Context, bleCallback : IBleCallback): Boolean {
         this.context = context
         if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.e(TAG, "BLE not supported")
@@ -68,14 +74,15 @@ class BLEManager {
         }
         bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+        if ( !bluetoothAdapter.isEnabled) {
 
         }
+        this.bleCallback = bleCallback
         return true
     }
 
     fun isBluetoothEnabled(): Boolean {
-        return (bluetoothAdapter == null || !bluetoothAdapter.isEnabled)
+        return ( !bluetoothAdapter.isEnabled)
     }
 
 
@@ -91,6 +98,9 @@ class BLEManager {
                                       result: ScanResult) {
                 if (!devices.contains(result.device))
                     devices.add(result.device)
+                result.device.connectGatt(context, false, gattCallback)
+                callback.onDeviceDiscovered(result.device)
+                bluetoothAdapter.bluetoothLeScanner.stopScan(this)
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
@@ -104,7 +114,18 @@ class BLEManager {
                 callback.onError()
             }
         }
-        bluetoothAdapter.bluetoothLeScanner.startScan(scanCallback)
+        val filters = ArrayList<ScanFilter>()
+                val filter = ScanFilter.Builder().setServiceUuid(
+                        ParcelUuid(UUID_TRIP_MEESSAGE
+                        )).build()
+                filters.add(filter)
+
+
+        val settings = ScanSettings.Builder().build()
+
+
+
+        bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
 
         Timer().schedule(object : TimerTask() {
             override fun run() {
@@ -124,7 +145,7 @@ class BLEManager {
                 broadcastUpdate(intentAction)
                 Log.i(TAG, "Connected to GATT server.")
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" + bluetoothGatt!!.discoverServices())
+                Log.i(TAG, "Attempting to start service discovery:" + gatt.discoverServices())
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED
@@ -136,6 +157,20 @@ class BLEManager {
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                gatt.connect()
+                for(service in gatt.services) {
+                    if(UUID_TRIP_SERVICE == service.uuid) {
+                        bluetoothGatt = gatt
+                        val characteristic = service.getCharacteristic(UUID_TRIP_MEESSAGE)
+                        if (characteristic != null) {
+                            bluetoothCharacteristic = characteristic
+                            bleCallback.onConnectSuccesful()
+                            gatt.setCharacteristicNotification(characteristic, true)
+                            gatt.readCharacteristic(characteristic)
+
+                        }
+                    }
+                }
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED)
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status)
@@ -145,19 +180,25 @@ class BLEManager {
         override fun onCharacteristicRead(gatt: BluetoothGatt,
                                           characteristic: BluetoothGattCharacteristic,
                                           status: Int) {
+            Log.d(TAG, "onCharacteristicRead")
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "onCharacteristicRead " )
+                bleCallback.onMessage(characteristic.getStringValue(0))
+                writeData(MessageProvider.instance.getPingJson())
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic)
             }
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt,
                                              characteristic: BluetoothGattCharacteristic) {
+            Log.d(TAG, "onCharacteristicChanged")
+
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic)
         }
     }
 
     fun connect(address: String?): Boolean {
-        if (bluetoothAdapter == null || address == null) {
+        if ( address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.")
             return false
         }
@@ -174,7 +215,7 @@ class BLEManager {
             }
         }
 
-        val device = bluetoothAdapter!!.getRemoteDevice(address)
+        val device = bluetoothAdapter.getRemoteDevice(address)
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.")
             return false
@@ -195,7 +236,7 @@ class BLEManager {
      * callback.
      */
     fun disconnect() {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
+        if ( bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized")
             return
         }
@@ -222,7 +263,7 @@ class BLEManager {
      * @param characteristic The characteristic to read from.
      */
     fun readCharacteristic(characteristic: BluetoothGattCharacteristic) {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
+        if ( bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized")
             return
         }
@@ -231,7 +272,7 @@ class BLEManager {
 
     fun setCharacteristicNotification(characteristic: BluetoothGattCharacteristic,
                                       enabled: Boolean) {
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
+        if ( bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized")
             return
         }
@@ -256,7 +297,7 @@ class BLEManager {
         get() = if (bluetoothGatt == null) null else bluetoothGatt!!.services
 
 
-    private fun broadcastUpdate(action: String, characteristic: BluetoothGattCharacteristic = null as BluetoothGattCharacteristic) {
+    private fun broadcastUpdate(action: String, characteristic: BluetoothGattCharacteristic? = null) {
 
     }
 
@@ -279,13 +320,10 @@ class BLEManager {
     }
 
 
-    private fun startAdvertising() {
-        val bluetoothAdapter = bluetoothManager.getAdapter()
-        bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser()
-        if (bluetoothLeAdvertiser == null) {
-            Log.w(TAG, "Failed to create advertiser")
-            return
-        }
+    fun startAdvertising() {
+        val bluetoothAdapter = bluetoothManager.adapter
+        bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
+
 
         val settings = AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
@@ -300,7 +338,7 @@ class BLEManager {
                 .addServiceUuid(ParcelUuid(UUID_TRIP_MEESSAGE))
                 .build()
 
-        bluetoothLeAdvertiser!!
+        bluetoothLeAdvertiser
                 .startAdvertising(settings, data, mAdvertiseCallback)
     }
 
@@ -309,7 +347,7 @@ class BLEManager {
      */
     private fun stopAdvertising() {
         if (bluetoothLeAdvertiser != null)
-            bluetoothLeAdvertiser!!.stopAdvertising(mAdvertiseCallback)
+            bluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback)
     }
 
      lateinit var bluetoothGattServer: BluetoothGattServer
@@ -318,18 +356,15 @@ class BLEManager {
      * Initialize the GATT server instance with the services/characteristics
      * from the Time Profile.
      */
-    private fun startServer() {
+    fun startServer() {
         bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
-        if (bluetoothGattServer == null) {
-            Log.w(TAG, "Unable to create GATT server")
-            return
-        }
+
 
         bluetoothGattServer.addService(createTripService())
 
     }
 
-    fun createTripService(): BluetoothGattService {
+    private fun createTripService(): BluetoothGattService {
         val service = BluetoothGattService(UUID_TRIP_SERVICE,
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
 
@@ -401,6 +436,8 @@ class BLEManager {
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i(TAG, "BluetoothDevice CONNECTED: " + device)
+                bleCallback.onDeviceConnected(device)
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i(TAG, "BluetoothDevice DISCONNECTED: " + device)
                 //Remove device from any active subscriptions
@@ -411,9 +448,10 @@ class BLEManager {
         override fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int,
                                                  characteristic: BluetoothGattCharacteristic) {
             val now = System.currentTimeMillis()
+            Log.i(TAG, "Read characteristic")
             when {
                 UUID_TRIP_MEESSAGE.equals(characteristic.uuid) -> {
-                    Log.i(TAG, "Read CurrentTime")
+                    Log.i(TAG, "Read TRIP_MEESSAGE")
                     bluetoothGattServer.sendResponse(device,
                             requestId,
                             BluetoothGatt.GATT_SUCCESS,
@@ -442,6 +480,8 @@ class BLEManager {
 
         override fun onDescriptorReadRequest(device: BluetoothDevice, requestId: Int, offset: Int,
                                              descriptor: BluetoothGattDescriptor) {
+            Log.d(TAG, "onDescriptorReadRequest")
+
             if (UUID_TRIP_CHARACTERISTIC_CONFIG.equals(descriptor.uuid)) {
                 Log.d(TAG, "Config descriptor read")
                 val returnValue: ByteArray = if (registeredDevices.contains(device)) {
@@ -467,6 +507,7 @@ class BLEManager {
                                               descriptor: BluetoothGattDescriptor,
                                               preparedWrite: Boolean, responseNeeded: Boolean,
                                               offset: Int, value: ByteArray) {
+            Log.d(TAG, "onDescriptorWriteRequest " + descriptor.uuid)
             if (UUID_TRIP_CHARACTERISTIC_CONFIG.equals(descriptor.uuid)) {
                 if (Arrays.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE, value)) {
                     Log.d(TAG, "Subscribe device to notifications: " + device)
@@ -493,9 +534,40 @@ class BLEManager {
             }
         }
     }
+
+
+    fun writeData(data: String) {
+        if (bluetoothAdapter == null || bluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized")
+            return
+        }
+
+        Log.i(TAG, "characteristic " + bluetoothCharacteristic.toString())
+        try {
+            Log.i(TAG, "data " + data)
+
+            bluetoothCharacteristic?.setValue(data)
+
+            // TODO
+            bluetoothGatt!!.writeCharacteristic(bluetoothCharacteristic)
+        } catch (e: UnsupportedEncodingException) {
+            e.printStackTrace()
+        }
+
+    }
 }
+
+interface IBleCallback {
+    fun onConnectSuccesful()
+    fun onMessage( data: String)
+    fun onDisconnect()
+    fun onDeviceConnected(device: BluetoothDevice)
+}
+
+
 
 interface IScanCallback {
     fun onDone()
+    fun onDeviceDiscovered( device: BluetoothDevice)
     fun onError()
 }
