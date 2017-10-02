@@ -1,10 +1,10 @@
-package com.tikalk.zztripo.zztripo.members_screen
+package com.tikalk.zztripo.zztripo.participants
 
 import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.tikalk.zztripo.zztripo.model.Member
 
-class MembersPresenter (val context: Context, val view : MembersScreenContract.View): MembersScreenContract.Presenter{
+class ParticipantsPresenter(val context: Context, val view : ParticipantsContract.View): ParticipantsContract.Presenter{
 
 
     override fun subscribe() {

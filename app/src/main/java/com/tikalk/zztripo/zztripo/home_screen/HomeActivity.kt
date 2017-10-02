@@ -1,7 +1,10 @@
 package com.tikalk.zztripo.zztripo.home_screen
 
+import android.bluetooth.BluetoothDevice
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.tikalk.zztripo.zztripo.BLE.BLEManager
+import com.tikalk.zztripo.zztripo.BLE.IScanCallback
 
 import com.tikalk.zztripo.zztripo.R
 import com.tikalk.zztripo.zztripo.entities.Participant
@@ -10,17 +13,16 @@ import com.tikalk.zztripo.zztripo.sources.db.dao.ParticipantDao
 import com.tikalk.zztripo.zztripo.sources.participant.ParticipantsLocalDataSource
 import kotlinx.android.synthetic.main.activity_home.*
 import android.widget.Toast
-import android.Manifest.permission
 import android.content.Context
 import android.content.Intent
-import android.support.v4.app.FragmentActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
 import java.util.*
-import java.util.Arrays.deepToString
 import android.content.pm.PackageManager
 import android.util.Log
+import com.tikalk.zztripo.zztripo.BLE.IBleCallback
+import com.tikalk.zztripo.zztripo.logics.MessageProvider
 import com.tikalk.zztripo.zztripo.map.MapsActivity
-import com.tikalk.zztripo.zztripo.members_screen.MembersActivity
+import com.tikalk.zztripo.zztripo.participants.OngoingTripActivity
 
 
 class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
@@ -34,14 +36,47 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         checkPermissions()
+        val manager = BLEManager()
+        manager.init(applicationContext, object: IBleCallback {
+            override fun onConnectSuccesful() {
+                Log.d(TAG, "onConnectSuccesful " )
+            }
 
+            override fun onDisconnect() {
+                Log.d(TAG, "onDisconnect " )
+            }
+
+            override fun onDeviceConnected(device: BluetoothDevice) {
+                Log.d(TAG, "onDeviceConnected " + device.address)
+            }
+
+            override fun onMessage(data: String) {
+                Log.d(TAG, "onMessage " + data)
+                manager.writeData(MessageProvider.instance.getPingJson())
+            }
+        })
         btnJoiner.setOnClickListener({
             homePresenter.joinerButtonClicked()
+            manager.startScan(15000, object: IScanCallback {
+                override fun onDone() {
+                    Log.d(TAG, "scan done")
+                }
 
+                override fun onDeviceDiscovered(device: BluetoothDevice) {
+
+                }
+
+                override fun onError() {
+                    Log.d(TAG, "scan error")
+
+                }
+            })
         })
 
         btnLeader.setOnClickListener({
             homePresenter.leaderButtonClicked()
+            manager.startAdvertising()
+            manager.startServer()
         })
 
         setPresenter(HomePresenter(this, this))
@@ -54,7 +89,7 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
 
     override fun openMembersActivity() {
         Log.i(TAG, "About to open Members Activity")
-        val intent = Intent(this, MembersActivity::class.java)
+        val intent = Intent(this, OngoingTripActivity::class.java)
 
         startActivity(intent)
 
