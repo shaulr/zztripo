@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ZZ Tripo</string>
+    <string name="title_activity_maps">Map</string>
+
 </resources>
