@@ -16,6 +16,7 @@ import java.util.Arrays.deepToString
 import android.content.pm.PackageManager
 import android.util.Log
 import com.tikalk.zztripo.zztripo.map.MapsActivity
+import com.tikalk.zztripo.zztripo.members_screen.GoingTripActivity
 import com.tikalk.zztripo.zztripo.members_screen.MembersActivity
 
 
@@ -49,7 +50,7 @@ class HomeActivity : AppCompatActivity(), HomeScreenContract.View {
 
     override fun openMembersActivity() {
         Log.i(TAG, "About to open Members Activity")
-        val intent = Intent(this, MembersActivity::class.java)
+        val intent = Intent(this, GoingTripActivity::class.java)
 
         startActivity(intent)
 
