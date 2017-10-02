@@ -9,4 +9,6 @@ interface ParticipantsDataSource {
 
     fun saveParticipants(list: List<Participant>) : Unit = Unit
 
+    fun addParticipant(participant: Participant) : Unit = Unit
+
 }

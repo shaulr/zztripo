@@ -18,4 +18,6 @@ object ParticipantsLocalDataSource : ParticipantsDataSource {
     override fun saveParticipants(list: List<Participant>)
         =  reposDao.insertAll(list.toMutableList())
 
+    override fun addParticipant( participant: Participant) =
+            reposDao.addParticipant(participant)
 }
